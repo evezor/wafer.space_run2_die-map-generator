@@ -1,0 +1,7 @@
+starlette
+uvicorn
+websockets
+jinja2
+requests
+numpy
+matplotlib

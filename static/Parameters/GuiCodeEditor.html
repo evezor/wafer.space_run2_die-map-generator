@@ -1,0 +1,14 @@
+<div style="display: flex; flex-direction: column; height: 100%;">
+  <div id="${param.pid}_editor" class="rounded-md" style="border: 2px solid var(--border-default); flex: 1; min-height: 50px;">
+    <!-- Create a textarea for the CodeMirror editor -->
+    <textarea id="${param.pid}_code" name="${param.pid}_code">${param.state}</textarea>
+    <!-- Create a draggable bar for resizing -->
+    <div id="${param.pid}_resize-bar" class="w-full" style="cursor: row-resize; height: 6px; background-color: var(--bg-element);"></div>
+  </div>
+  <div class="flex flex-wrap items-center gap-sm py-sm" style="flex-shrink: 0;">
+    <button class="btn btn--sm btn--muted" id="${param.pid}_submit_button">submit</button>
+    <span id="${param.pid}_sync_status" style="font-size: 0.75rem; opacity: 0.85; min-width: 90px; font-family: var(--font-mono, monospace);">* synced</span>
+    <button class="btn btn--sm" id="${param.pid}_save_button">save file</button>
+    <input type="file" id="${param.pid}_file_input" class="input" style="flex: 1; min-width: 150px;">
+  </div>
+</div>

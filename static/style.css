@@ -1,0 +1,1998 @@
+/* =============================================================================
+   EVEZOR DESIGN SYSTEM
+   A scalable, theme-ready CSS architecture
+   ============================================================================= */
+
+/* Shared toast component. Imported rather than <link>ed because this file is
+   loaded by the IDE (/static/core/style.css) AND by every export terminal,
+   where the static tree is flattened (docker/cpython: static/style.css;
+   esp32: style.css). An @import resolves against THIS stylesheet's URL, not
+   the document's, so the one relative path is correct under all three.
+   @import must stay above every rule below. */
+@import "ide-toast.css";
+
+/* =============================================================================
+   1. PRIMITIVE PALETTE (The Warehouse)
+   Never use these directly in components - only reference via functional tokens
+   ============================================================================= */
+
+:root {
+  /* Brand Primitives */
+  --raw-green: #068770;
+  --raw-magenta: #d93aa7;
+
+  /* Complementary */
+  --raw-comp-1: #f5ccd3;
+  --raw-comp-2: #da3e5b;
+  --raw-comp-3: #358d7d;
+  --raw-comp-4: #4e7971;
+
+  /* Double Split Complementary */
+  --raw-ds-1: #d93aa7;
+  --raw-ds-2: #dc7647;
+  --raw-ds-3: #bee36d;
+  --raw-ds-4: #3ea9da;
+
+  /* Split Complementary */
+  --raw-split-1: #fef0fa;
+  --raw-split-2: #fbbea2;
+  --raw-split-3: #768ae5;
+  --raw-split-4: #3f52a6;
+
+  /* Shades */
+  --raw-shade-1: #0b6f5d;
+  --raw-shade-2: #105649;
+  --raw-shade-3: #12302b;
+  --raw-shade-4: #0c1311;
+
+  /* Square */
+  --raw-square-1: #c5acfb;
+  --raw-square-2: #fa8fa2;
+  --raw-square-3: #f0fdd3;
+  --raw-square-4: #80b5f9;
+
+  /* Triadic */
+  --raw-triadic-1: #f3ddf8;
+  --raw-triadic-2: #b629d6;
+  --raw-triadic-3: #897934;
+  --raw-triadic-4: #706948;
+
+  /* Compound */
+  --raw-compound-1: #47addc;
+  --raw-compound-2: #fa8fd8;
+  --raw-compound-3: #fde4d8;
+  --raw-compound-4: #69e28f;
+
+  /* Analogous */
+  --raw-analogous-1: #8ad6fa;
+  --raw-analogous-2: #32e9f6;
+  --raw-analogous-3: #76f9c0;
+  --raw-analogous-4: #54f788;
+
+  /* Monochrome */
+  --raw-mono-1: #36d9bb;
+  --raw-mono-2: #42ae9a;
+  --raw-mono-3: #056755;
+  --raw-mono-4: #2e4843;
+
+  /* Neutrals */
+  --raw-neutral-100: #ffffff;
+  --raw-neutral-200: #e2e8f0;
+  --raw-neutral-300: #d4d4d4;
+  --raw-neutral-400: #a0a0a0;
+  --raw-neutral-500: #6b6b6b;
+  --raw-neutral-600: #484848;
+  --raw-neutral-700: #303030;
+  --raw-neutral-800: #1a1a1a;
+  --raw-neutral-900: #000000;
+}
+
+/* =============================================================================
+   2. FUNCTIONAL TOKENS (The Semantic Layer)
+   Use ONLY these in your components - enables easy theme swapping
+   ============================================================================= */
+
+:root {
+  /* ----- Surfaces & Backgrounds ----- */
+  --bg-main: var(--raw-neutral-700);
+  --bg-surface: var(--raw-shade-3);
+  --bg-element: var(--raw-shade-2);
+  --bg-elevated: var(--raw-neutral-600);
+  --bg-inset: var(--raw-shade-4);
+
+  /* ----- Text Colors ----- */
+  --text-high: var(--raw-split-1);
+  --text-main: var(--raw-neutral-300);
+  --text-muted: var(--raw-comp-4);
+  --text-inverse: var(--raw-neutral-900);
+
+  /* ----- Brand & Action Colors ----- */
+  --brand-primary: var(--raw-green);
+  --brand-accent: var(--raw-magenta);
+  --brand-secondary: var(--raw-ds-4);
+
+  /* ----- Status Colors ----- */
+  --status-success: var(--raw-mono-1);
+  --status-error: var(--raw-comp-2);
+  --status-warning: var(--raw-ds-2);
+  --status-info: var(--raw-ds-4);
+
+  /* ----- Border Colors ----- */
+  --border-default: var(--raw-green);
+  --border-muted: var(--raw-shade-2);
+  --border-strong: var(--raw-neutral-300);
+
+  /* ----- Form Elements ----- */
+  --input-bg: var(--raw-neutral-200);
+  --input-bg-hover: var(--raw-neutral-300);
+  --input-bg-focus: var(--raw-neutral-100);
+  --input-border: var(--raw-neutral-400);
+  --input-accent: var(--raw-green);
+}
+
+/* =============================================================================
+   3. DYNAMIC STATE HANDLING
+   Uses color-mix() for automatic hover/active/disabled states
+   ============================================================================= */
+
+:root {
+  /* Primary states */
+  --primary-hover: color-mix(in srgb, var(--brand-primary), white 15%);
+  --primary-active: color-mix(in srgb, var(--brand-primary), black 15%);
+  --primary-disabled: color-mix(in srgb, var(--brand-primary), var(--bg-main) 60%);
+
+  /* Accent states */
+  --accent-hover: color-mix(in srgb, var(--brand-accent), white 15%);
+  --accent-active: color-mix(in srgb, var(--brand-accent), black 15%);
+  --accent-disabled: color-mix(in srgb, var(--brand-accent), var(--bg-main) 60%);
+
+  /* Secondary states */
+  --secondary-hover: color-mix(in srgb, var(--brand-secondary), white 15%);
+  --secondary-active: color-mix(in srgb, var(--brand-secondary), black 15%);
+
+  /* Error states */
+  --error-hover: color-mix(in srgb, var(--status-error), white 15%);
+  --error-active: color-mix(in srgb, var(--status-error), black 15%);
+
+  /* Warning states */
+  --warning-hover: color-mix(in srgb, var(--status-warning), white 15%);
+  --warning-active: color-mix(in srgb, var(--status-warning), black 15%);
+
+  /* Success states */
+  --success-hover: color-mix(in srgb, var(--status-success), white 15%);
+  --success-active: color-mix(in srgb, var(--status-success), black 15%);
+
+  /* Info states */
+  --info-hover: color-mix(in srgb, var(--status-info), white 15%);
+  --info-active: color-mix(in srgb, var(--status-info), black 15%);
+
+  /* Stop (emergency) - more saturated red */
+  --stop-color: #ff1a1a;
+  --stop-hover: color-mix(in srgb, var(--stop-color), white 15%);
+  --stop-active: color-mix(in srgb, var(--stop-color), black 15%);
+
+  /* Go/Run - bright operational green */
+  --go-color: #22c55e;
+  --go-hover: color-mix(in srgb, var(--go-color), white 15%);
+  --go-active: color-mix(in srgb, var(--go-color), black 15%);
+
+  /* Pause - amber */
+  --pause-color: #f59e0b;
+  --pause-hover: color-mix(in srgb, var(--pause-color), white 15%);
+  --pause-active: color-mix(in srgb, var(--pause-color), black 15%);
+
+  /* Muted */
+  --muted-color: var(--raw-neutral-500);
+  --muted-hover: color-mix(in srgb, var(--muted-color), white 15%);
+  --muted-active: color-mix(in srgb, var(--muted-color), black 15%);
+}
+
+/* =============================================================================
+   4. SPACING & TYPOGRAPHY SCALE
+   Consistent sizing system for the entire application
+   ============================================================================= */
+
+:root {
+  /* Spacing scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+
+  /* Font sizes */
+  --font-xs: 12px;
+  --font-sm: 14px;
+  --font-md: 16px;
+  --font-lg: 20px;
+  --font-xl: 24px;
+  --font-2xl: 30px;
+
+  /* Border radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* =============================================================================
+   5. BASE STYLES
+   Foundation styles for HTML elements
+   ============================================================================= */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: Arial, sans-serif;
+  font-size: var(--font-md);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-high);
+  margin-top: 0;
+}
+
+a {
+  color: var(--brand-secondary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+table, tr, td, th {
+  border: 1px solid var(--border-default);
+  border-collapse: collapse;
+  padding: var(--space-xs);
+}
+
+th {
+  background-color: var(--bg-surface);
+}
+
+hr {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--border-muted);
+  margin: var(--space-sm) 0;
+}
+
+/* =============================================================================
+   6. UTILITY CLASSES
+   Small, composable classes for rapid development
+   ============================================================================= */
+
+/* ----- Display ----- */
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.block { display: block; }
+.inline-block { display: inline-block; }
+.hidden { display: none; }
+
+/* ----- Flexbox ----- */
+.flex-row { flex-direction: row; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-center { justify-content: center; align-items: center; }
+.flex-between { justify-content: space-between; }
+.flex-start { justify-content: flex-start; }
+.flex-end { justify-content: flex-end; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+
+/* ----- Gap ----- */
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+
+/* ----- Padding ----- */
+.p-xs { padding: var(--space-xs); }
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+.p-xl { padding: var(--space-xl); }
+
+.px-xs { padding-left: var(--space-xs); padding-right: var(--space-xs); }
+.px-sm { padding-left: var(--space-sm); padding-right: var(--space-sm); }
+.px-md { padding-left: var(--space-md); padding-right: var(--space-md); }
+.px-lg { padding-left: var(--space-lg); padding-right: var(--space-lg); }
+
+.py-xs { padding-top: var(--space-xs); padding-bottom: var(--space-xs); }
+.py-sm { padding-top: var(--space-sm); padding-bottom: var(--space-sm); }
+.py-md { padding-top: var(--space-md); padding-bottom: var(--space-md); }
+.py-lg { padding-top: var(--space-lg); padding-bottom: var(--space-lg); }
+
+/* ----- Margin ----- */
+.m-xs { margin: var(--space-xs); }
+.m-sm { margin: var(--space-sm); }
+.m-md { margin: var(--space-md); }
+.m-lg { margin: var(--space-lg); }
+.m-auto { margin: auto; }
+
+.mx-auto { margin-left: auto; margin-right: auto; }
+.my-md { margin-top: var(--space-md); margin-bottom: var(--space-md); }
+
+/* ----- Text ----- */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-bold { font-weight: bold; }
+.text-normal { font-weight: normal; }
+
+.text-xs { font-size: var(--font-xs); }
+.text-sm { font-size: var(--font-sm); }
+.text-md { font-size: var(--font-md); }
+.text-lg { font-size: var(--font-lg); }
+.text-xl { font-size: var(--font-xl); }
+.text-2xl { font-size: var(--font-2xl); }
+
+/* ----- Text Colors ----- */
+.text-primary { color: var(--brand-primary); }
+.text-accent { color: var(--brand-accent); }
+.text-muted { color: var(--text-muted); }
+.text-success { color: var(--status-success); }
+.text-error { color: var(--status-error); }
+.text-warning { color: var(--status-warning); }
+.text-info { color: var(--status-info); }
+
+/* ----- Background Colors ----- */
+.bg-main { background-color: var(--bg-main); }
+.bg-surface { background-color: var(--bg-surface); }
+.bg-element { background-color: var(--bg-element); }
+.bg-elevated { background-color: var(--bg-elevated); }
+
+.bg-primary { background-color: var(--brand-primary); }
+.bg-accent { background-color: var(--brand-accent); }
+.bg-secondary { background-color: var(--brand-secondary); }
+.bg-success { background-color: var(--status-success); }
+.bg-error { background-color: var(--status-error); }
+.bg-warning { background-color: var(--status-warning); }
+.bg-info { background-color: var(--status-info); }
+
+/* ----- Border Radius ----- */
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* ----- Width ----- */
+.w-full { width: 100%; }
+.w-auto { width: auto; }
+
+/* =============================================================================
+   7. BUTTON COMPONENTS
+   Composable button system: .btn + size modifier + color modifier
+   ============================================================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--raw-neutral-100);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-normal), transform var(--transition-fast);
+  user-select: none;
+
+  /* Default size (medium) */
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-sm);
+
+  /* Default color (accent) */
+  background-color: var(--brand-accent);
+}
+
+.btn:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn:active {
+  background-color: var(--accent-active);
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  background-color: var(--accent-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ----- Size Modifiers ----- */
+.btn--sm {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-xs);
+  border-radius: var(--radius-sm);
+}
+
+.btn--md {
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-sm);
+}
+
+.btn--lg {
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--font-lg);
+}
+
+.btn--xl {
+  padding: var(--space-md) var(--space-xl);
+  font-size: var(--font-2xl);
+}
+
+/* ----- Color Modifiers ----- */
+.btn--primary {
+  background-color: var(--brand-primary);
+}
+.btn--primary:hover { background-color: var(--primary-hover); }
+.btn--primary:active { background-color: var(--primary-active); }
+.btn--primary:disabled { background-color: var(--primary-disabled); }
+
+.btn--secondary {
+  background-color: var(--brand-secondary);
+}
+.btn--secondary:hover { background-color: var(--secondary-hover); }
+.btn--secondary:active { background-color: var(--secondary-active); }
+
+.btn--danger {
+  background-color: var(--status-error);
+}
+.btn--danger:hover { background-color: var(--error-hover); }
+.btn--danger:active { background-color: var(--error-active); }
+
+.btn--ghost {
+  background-color: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-muted);
+}
+.btn--ghost:hover {
+  background-color: var(--bg-element);
+  border-color: var(--border-default);
+}
+
+.btn--warn,
+.btn--warning {
+  background-color: var(--status-warning);
+  color: var(--raw-neutral-900);
+}
+.btn--warn:hover,
+.btn--warning:hover { background-color: var(--warning-hover); }
+.btn--warn:active,
+.btn--warning:active { background-color: var(--warning-active); }
+
+.btn--success {
+  background-color: var(--status-success);
+  color: var(--raw-neutral-900);
+}
+.btn--success:hover { background-color: var(--success-hover); }
+.btn--success:active { background-color: var(--success-active); }
+
+.btn--info {
+  background-color: var(--status-info);
+}
+.btn--info:hover { background-color: var(--info-hover); }
+.btn--info:active { background-color: var(--info-active); }
+
+.btn--stop {
+  background-color: var(--stop-color);
+  font-weight: 700;
+}
+.btn--stop:hover { background-color: var(--stop-hover); }
+.btn--stop:active { background-color: var(--stop-active); }
+
+.btn--go,
+.btn--run {
+  background-color: var(--go-color);
+  color: var(--raw-neutral-900);
+}
+.btn--go:hover,
+.btn--run:hover { background-color: var(--go-hover); }
+.btn--go:active,
+.btn--run:active { background-color: var(--go-active); }
+
+.btn--pause {
+  background-color: var(--pause-color);
+  color: var(--raw-neutral-900);
+}
+.btn--pause:hover { background-color: var(--pause-hover); }
+.btn--pause:active { background-color: var(--pause-active); }
+
+.btn--muted {
+  background-color: var(--muted-color);
+}
+.btn--muted:hover { background-color: var(--muted-hover); }
+.btn--muted:active { background-color: var(--muted-active); }
+
+.btn--outline {
+  background-color: transparent;
+  color: var(--brand-primary);
+  border: 2px solid var(--brand-primary);
+}
+.btn--outline:hover {
+  background-color: var(--brand-primary);
+  color: var(--raw-neutral-100);
+}
+.btn--outline:active {
+  background-color: var(--primary-active);
+}
+
+/* =============================================================================
+   8. FORM COMPONENTS
+   Inputs, checkboxes, sliders, and other form elements
+   ============================================================================= */
+
+/* ----- Text Inputs ----- */
+.input {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-xs);
+  font-size: var(--font-sm);
+  color: var(--text-inverse);
+  transition: border-color var(--transition-normal), background-color var(--transition-normal);
+  outline: none;
+}
+
+.input:hover {
+  background-color: var(--input-bg-hover);
+}
+
+.input:focus {
+  background-color: var(--input-bg-focus);
+  border-color: var(--input-accent);
+}
+
+.input::placeholder {
+  color: var(--raw-neutral-400);
+}
+
+/* ----- Custom Checkbox ----- */
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--font-md);
+}
+
+.checkbox__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox__box {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  background-color: var(--input-bg);
+  border: 2px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+}
+
+.checkbox:hover .checkbox__box {
+  background-color: var(--input-bg-hover);
+  border-color: var(--input-accent);
+}
+
+.checkbox__input:checked + .checkbox__box {
+  background-color: var(--input-accent);
+  border-color: var(--input-accent);
+}
+
+.checkbox__box::after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid var(--raw-neutral-100);
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox__input:checked + .checkbox__box::after {
+  display: block;
+}
+
+.checkbox__input:disabled + .checkbox__box {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ----- Checkbox Size Modifiers ----- */
+.checkbox--sm {
+  font-size: var(--font-sm);
+}
+
+.checkbox--sm .checkbox__box {
+  width: 16px;
+  height: 16px;
+}
+
+.checkbox--sm .checkbox__box::after {
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border-width: 0 2px 2px 0;
+}
+
+.checkbox--md {
+  font-size: var(--font-md);
+}
+
+.checkbox--md .checkbox__box {
+  width: 24px;
+  height: 24px;
+}
+
+.checkbox--md .checkbox__box::after {
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border-width: 0 3px 3px 0;
+}
+
+.checkbox--lg {
+  font-size: var(--font-lg);
+}
+
+.checkbox--lg .checkbox__box {
+  width: 32px;
+  height: 32px;
+}
+
+.checkbox--lg .checkbox__box::after {
+  left: 10px;
+  top: 4px;
+  width: 8px;
+  height: 16px;
+  border-width: 0 4px 4px 0;
+}
+
+/* ----- GuiCheckbox Parameter ----- */
+.checkbox-param {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 48px;
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-normal);
+}
+
+.checkbox-param--on {
+  background-color: color-mix(in srgb, var(--brand-primary), transparent 85%);
+}
+
+.checkbox-param .checkbox__box {
+  transform: scale(1.4);
+}
+
+/* ----- Debug Flags Checkbox Options ----- */
+.checkbox-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-normal);
+  margin-bottom: var(--space-xs);
+}
+
+.checkbox-option:hover {
+  background-color: var(--bg-element);
+}
+
+.checkbox-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex: 1;
+}
+
+.checkbox-title {
+  font-weight: 600;
+  color: var(--text-high);
+}
+
+.checkbox-description {
+  font-size: var(--font-sm);
+  color: var(--text-muted);
+}
+
+.checkbox-hint {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  opacity: 0.7;
+}
+
+.checkbox-option .checkbox__input:checked ~ .checkbox-label .checkbox-title {
+  color: var(--brand-primary);
+}
+
+/* ----- Custom Radio Button ----- */
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--font-md);
+}
+
+.radio__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radio__circle {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  background-color: var(--input-bg);
+  border: 2px solid var(--input-border);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+}
+
+.radio:hover .radio__circle {
+  background-color: var(--input-bg-hover);
+  border-color: var(--input-accent);
+}
+
+.radio__input:checked + .radio__circle {
+  border-color: var(--input-accent);
+}
+
+.radio__circle::after {
+  content: "";
+  position: absolute;
+  display: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background-color: var(--input-accent);
+  border-radius: var(--radius-full);
+}
+
+.radio__input:checked + .radio__circle::after {
+  display: block;
+}
+
+/* ----- Range Slider ----- */
+.slider {
+  width: 100%;
+  height: 6px;
+  background: var(--input-bg);
+  border-radius: var(--radius-full);
+  outline: none;
+  opacity: 0.8;
+  transition: opacity var(--transition-normal);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--input-accent);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--input-accent);
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+}
+
+/* ----- Toggle Switch ----- */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle__track {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background-color: var(--raw-neutral-400);
+  border-radius: var(--radius-full);
+  transition: background-color var(--transition-normal);
+}
+
+.toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background-color: var(--raw-neutral-100);
+  border-radius: var(--radius-full);
+  transition: transform var(--transition-normal);
+}
+
+.toggle__input:checked + .toggle__track {
+  background-color: var(--input-accent);
+}
+
+.toggle__input:checked + .toggle__track .toggle__thumb {
+  transform: translateX(22px);
+}
+
+/* =============================================================================
+   9. CARD COMPONENT
+   Container for grouped content
+   ============================================================================= */
+
+.card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  border: 1px solid var(--border-muted);
+}
+
+.card--elevated {
+  background-color: var(--bg-elevated);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.card__header {
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border-muted);
+}
+
+.card__title {
+  margin: 0;
+  font-size: var(--font-lg);
+}
+
+.card__body {
+  color: var(--text-main);
+}
+
+.card__footer {
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-muted);
+}
+
+/* =============================================================================
+   9.1 PARAMETER COMPONENT
+   Parameter wrapper styling - keeps green border, neutral content area
+   ============================================================================= */
+
+.parameter {
+  padding: var(--space-xs);
+}
+
+.parameter__header {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-xs);
+}
+
+.parameter__content {
+  background-color: var(--bg-main);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+}
+
+/* Parameter toggle icon */
+.parameter__toggle-icon {
+  display: inline-block;
+  transition: transform var(--transition-fast);
+  font-size: var(--font-sm);
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.parameter__toggle-icon.collapsed {
+  transform: rotate(-90deg);
+}
+
+/* Parameter hamburger menu */
+.parameter__menu {
+  position: relative;
+}
+
+.parameter__menu-button {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--font-md);
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  line-height: 1;
+}
+
+.parameter__menu-button:hover {
+  background-color: var(--bg-element);
+  color: var(--text-main);
+}
+
+.parameter__menu-dropdown {
+  /* position: fixed so the menu escapes the parameter card's overflow: hidden.
+     Coordinates are set in JS from the button's bounding rect. */
+  display: none;
+  position: fixed;
+  min-width: 150px;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.parameter__menu-dropdown.open {
+  display: block;
+}
+
+.parameter__menu-item {
+  display: block;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: var(--font-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.parameter__menu-item:hover {
+  background-color: var(--bg-element);
+}
+
+.parameter__menu-item:not(:last-child) {
+  border-bottom: 1px solid var(--border-muted);
+}
+
+/* Info strip at the top of the menu dropdown — type + pid */
+.parameter__menu-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--bg-inset);
+  border-bottom: 1px solid var(--border-muted);
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+}
+
+.parameter__menu-info-type {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  color: var(--text-high);
+  font-weight: 600;
+}
+
+.parameter__menu-info-pid {
+  background: transparent;
+  border: none;
+  padding: 2px var(--space-xs);
+  margin: 0;
+  color: var(--text-muted);
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: var(--font-xs);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.parameter__menu-info-pid:hover {
+  background-color: var(--bg-element);
+  color: var(--text-main);
+}
+
+.parameter__menu-info-pid.copied {
+  color: var(--raw-green);
+}
+
+.parameter__menu-info-pid.copied::after {
+  content: ' ✓';
+}
+
+/* Parameter modal */
+.parameter-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.parameter-modal__backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.parameter-modal__container {
+  position: relative;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+/* A <dialog> using this class must stay hidden until opened via showModal()/show().
+   The author `display: flex` above otherwise overrides the UA `dialog:not([open])`
+   rule, leaving the dialog permanently rendered. Scoped to <dialog> so the
+   <div>-based parameter modals (utils.js) are unaffected. */
+dialog.parameter-modal__container:not([open]) {
+  display: none;
+}
+
+.parameter-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border-muted);
+}
+
+.parameter-modal__title {
+  margin: 0;
+  font-size: var(--font-lg);
+  color: var(--text-high);
+}
+
+.parameter-modal__close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--font-xl);
+  cursor: pointer;
+  padding: var(--space-xs);
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.parameter-modal__close:hover {
+  background-color: var(--bg-element);
+  color: var(--text-main);
+}
+
+.parameter-modal__body {
+  padding: var(--space-md);
+  overflow: auto;
+  flex: 1;
+}
+
+.parameter-modal__tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 var(--space-md);
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-muted);
+}
+
+.parameter-modal__tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: var(--space-sm) var(--space-md);
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.parameter-modal__tab:hover {
+  color: var(--text-main);
+}
+
+.parameter-modal__tab.active {
+  color: var(--text-high);
+  border-bottom-color: var(--raw-green);
+}
+
+.parameter-modal__code {
+  margin: 0;
+  padding: var(--space-md);
+  background-color: var(--bg-inset);
+  border-radius: var(--radius-md);
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: var(--font-sm);
+  color: var(--text-main);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+}
+
+/* =============================================================================
+   9.2 PARAMETERS GRID LAYOUT
+   CSS grid for runtime GUI — JS sets display:grid + columns when layout exists
+   ============================================================================= */
+
+/* Base: align grid rows to top, no stretching */
+#parameters {
+  align-content: start;
+}
+
+/* Grid children: prevent content from blowing out grid cells */
+#parameters > * {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Parameter cards fill their grid cell */
+#parameters > .parameter {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Runtime layout decorations (text notes, etc.) — they use the same
+ * .parameter card wrapper as Parameters, so most styling is inherited.
+ * Just trim the default margins inside the markdown body. */
+#parameters > .runtime-decoration .parameter__content > :first-child { margin-top: 0; }
+#parameters > .runtime-decoration .parameter__content > :last-child  { margin-bottom: 0; }
+
+#parameters > .parameter .parameter__content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Responsive viewport fallback (complements JS ResizeObserver on container).
+ * Three tiers — wide (>=1200px) uses the default 12-col grid set by JS;
+ * medium (768-1199px) drops to 6 cols; narrow (<768px) drops to 2 cols.
+ * Per-child spans (Math.min(placement.w, flowCols)) are handled by
+ * applyLayoutMode in utils.js so single-wides can sit side-by-side. */
+@media (max-width: 1199px) {
+  #parameters {
+    grid-template-columns: repeat(6, 1fr) !important;
+    grid-auto-flow: row dense;
+  }
+}
+@media (max-width: 767px) {
+  #parameters {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-flow: row dense;
+  }
+}
+
+/* =============================================================================
+   9.3 3D VIEWER
+   Styles for the Three.js 3D viewer component
+   ============================================================================= */
+
+#viewer-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  isolation: isolate;
+}
+
+#3d-viewer {
+  background-color: #22242b;
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
+  overflow: hidden;
+  min-width: 200px;
+  min-height: 200px;
+  position: relative;
+}
+
+#viewer-menu-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 2;
+  background: rgba(34, 36, 43, 0.8);
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 5px 10px;
+  line-height: 1;
+}
+
+#viewer-menu-btn:hover {
+  background: rgba(6, 135, 112, 0.9);
+}
+
+#viewer-menu {
+  position: absolute;
+  top: 50px;
+  right: 15px;
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 4px;
+  display: none;
+  z-index: 100;
+  min-width: 120px;
+}
+
+#viewer-menu.open {
+  display: block;
+}
+
+.viewer-menu-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  color: #fff;
+  white-space: nowrap;
+  border-bottom: 1px solid #444;
+}
+
+.viewer-menu-item:last-child {
+  border-bottom: none;
+}
+
+.viewer-menu-item:hover {
+  background: #068770;
+}
+
+#viewer-placeholder {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #22242b;
+  color: #fff;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  border: 1px solid black;
+}
+
+#viewer-placeholder.active {
+  display: flex;
+}
+
+#viewer-placeholder button {
+  background: #068770;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#viewer-placeholder button:hover {
+  background: #057a66;
+}
+
+#code_editor {
+  max-width: 1000px;
+  overflow: auto;
+  height: 500px;
+  resize: vertical;
+}
+
+/* Bottom drawer panel */
+#viewer-drawer {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  height: 0;
+  background: rgba(34, 36, 43, 0.95);
+  border: 1px solid #555;
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+  transition: height 0.3s ease;
+  z-index: 102;
+  display: flex;
+  flex-direction: column;
+}
+
+#viewer-drawer.open {
+  height: 200px;
+}
+
+#drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #1a1c21;
+  border-bottom: 1px solid #555;
+  flex-shrink: 0;
+}
+
+#drawer-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+#drawer-close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+#drawer-close-btn:hover {
+  color: #fff;
+}
+
+#drawer-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.drawer-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #444;
+  overflow: hidden;
+}
+
+.drawer-section:last-child {
+  border-right: none;
+}
+
+.drawer-section-header {
+  padding: 6px 10px;
+  background: #2a2c33;
+  color: #068770;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 1px solid #444;
+  flex-shrink: 0;
+}
+
+.drawer-section-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.drawer-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  color: #ccc;
+  font-size: 12px;
+  cursor: pointer;
+  gap: 8px;
+}
+
+.drawer-item:hover {
+  background: rgba(6, 135, 112, 0.3);
+}
+
+.drawer-item-visibility {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #666;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.drawer-item-visibility.visible {
+  background: #068770;
+  border-color: #068770;
+}
+
+.drawer-item-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.drawer-item-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawer-empty {
+  padding: 10px;
+  color: #666;
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* =============================================================================
+   10. BADGE COMPONENT
+   Small labels for status, counts, etc.
+   ============================================================================= */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-element);
+  color: var(--text-main);
+}
+
+.badge--primary { background-color: var(--brand-primary); color: var(--raw-neutral-100); }
+.badge--accent { background-color: var(--brand-accent); color: var(--raw-neutral-900); }
+.badge--success { background-color: var(--status-success); color: var(--raw-neutral-900); }
+.badge--error { background-color: var(--status-error); color: var(--raw-neutral-100); }
+.badge--warning { background-color: var(--status-warning); color: var(--raw-neutral-900); }
+.badge--info { background-color: var(--status-info); color: var(--raw-neutral-100); }
+
+/* =============================================================================
+   11. THEME OVERRIDE EXAMPLE
+   Swap functional tokens via data-theme attribute
+   ============================================================================= */
+
+[data-theme="light"] {
+  --bg-main: var(--raw-neutral-100);
+  --bg-surface: var(--raw-neutral-200);
+  --bg-element: var(--raw-neutral-300);
+  --bg-elevated: var(--raw-neutral-100);
+
+  --text-high: var(--raw-neutral-900);
+  --text-main: var(--raw-neutral-800);
+  --text-muted: var(--raw-neutral-500);
+  --text-inverse: var(--raw-neutral-100);
+
+  --border-muted: var(--raw-neutral-300);
+}
+
+[data-theme="high-contrast"] {
+  --bg-main: var(--raw-neutral-900);
+  --text-high: var(--raw-neutral-100);
+  --text-main: var(--raw-neutral-100);
+  --brand-primary: var(--raw-analogous-2);
+}
+
+/* =============================================================================
+   12. STICKY TERMINAL
+   Responsive terminal that sticks to top on desktop, bottom drawer on mobile
+   ============================================================================= */
+
+.sticky-terminal-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: #0d0d0d;
+  border-bottom: 1px solid var(--border-muted);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.sticky-terminal-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+  user-select: none;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: var(--font-sm);
+  color: #8a8a8a;
+}
+
+.sticky-terminal-header:hover {
+  background-color: #252525;
+}
+
+.sticky-terminal-body {
+  max-height: 250px;
+  overflow: hidden;
+  transition: max-height var(--transition-normal);
+}
+
+.sticky-terminal-body.collapsed {
+  max-height: 0;
+}
+
+.sticky-terminal-body .terminal {
+  height: 150px;
+  resize: none;
+  border-radius: 0;
+  background-color: #0d0d0d;
+  color: #c5c5c5;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.sticky-terminal-body .term_input {
+  border-radius: 0;
+  background-color: #151515;
+  border-top: 1px solid #333;
+  color: #e0e0e0;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.sticky-terminal-body .term_input:focus {
+  background-color: #1a1a1a;
+  outline: none;
+}
+
+/* Terminal scrollbar styling */
+.terminal::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.terminal::-webkit-scrollbar-track {
+  background: #0d0d0d;
+}
+
+.terminal::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.terminal::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+/* Terminal toggle indicator */
+.terminal-toggle-icon {
+  display: inline-block;
+  transition: transform var(--transition-fast);
+  font-weight: bold;
+  font-size: var(--font-sm);
+}
+
+.terminal-toggle-icon.collapsed {
+  transform: rotate(-90deg);
+}
+
+/* Mobile: Bottom drawer approach — tied to narrow grid breakpoint */
+@media (max-width: 767px) {
+  .sticky-terminal-wrapper {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-bottom: none;
+    border-top: 1px solid var(--border-muted);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .sticky-terminal-body {
+    max-height: 40vh;
+  }
+
+  /* Start collapsed on mobile */
+  .sticky-terminal-body.mobile-default-collapsed {
+    max-height: 0;
+  }
+
+  /* Add bottom padding to main content so it's not hidden behind terminal */
+  body {
+    padding-bottom: 50px;
+    transition: padding-bottom var(--transition-normal);
+  }
+
+  body.terminal-open {
+    padding-bottom: calc(40vh + 60px);
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .sticky-terminal-body {
+    max-height: 220px;
+  }
+}
+
+/* ============================================================================
+   Settings Panel Layout
+   ============================================================================ */
+
+/* Settings Panel Layout */
+.settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.settings-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.settings-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+}
+
+.settings-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.settings-section h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.settings-description {
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  font-size: var(--font-sm);
+}
+
+.settings-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+}
+
+/* Settings subsections (for debug flag categories) */
+.settings-subsection {
+  margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-xs);
+  align-items: start;
+}
+
+.settings-subsection h3 {
+  grid-column: 1 / -1;
+}
+
+.settings-subsection .checkbox-option {
+  margin-bottom: 0;
+}
+
+.settings-subsection:last-child {
+  margin-bottom: 0;
+}
+
+/* 2-column layout for debug flags */
+@media (min-width: 600px) {
+  .settings-subsection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .settings-subsection h3 {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Theme Selector */
+.theme-selector {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.radio-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 150px;
+}
+
+.radio-option:hover {
+  background-color: var(--bg-elevated);
+  border-color: var(--brand-primary);
+}
+
+.radio-option input[type="radio"] {
+  margin-top: 0.25rem;
+  cursor: pointer;
+}
+
+.radio-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.radio-title {
+  font-weight: 600;
+  color: var(--text-high);
+  font-size: var(--font-sm);
+}
+
+.radio-description {
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+}
+
+.radio-option input[type="radio"]:checked + .radio-label .radio-title {
+  color: var(--brand-primary);
+}
+
+/* =============================================================================
+   Zorg Devices Tab (Phase 4)
+   ============================================================================= */
+
+.zorg-status-pill {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: lowercase;
+  letter-spacing: 0.3px;
+  color: var(--text-inverse);
+}
+
+.zorg-status-green {
+  background-color: var(--status-success);
+}
+
+.zorg-status-amber {
+  background-color: var(--status-warning);
+}
+
+.zorg-status-grey {
+  background-color: color-mix(in srgb, var(--text-muted), transparent 35%);
+}
+
+.zorg-tag-chip {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  background-color: color-mix(in srgb, var(--brand-secondary), transparent 70%);
+  color: var(--text-main);
+  border: 1px solid var(--border-muted);
+}
+
+.zorg-tag-chip a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.zorg-tag-chip a:hover {
+  color: var(--status-error);
+}
+
+.zorg-device-table {
+  font-size: 12px;
+}
+
+.zorg-device-table tr:not(:first-child):hover {
+  background-color: color-mix(in srgb, var(--brand-primary), transparent 92%);
+}
+
+.zorg-manifest-table td {
+  border-bottom: 1px solid color-mix(in srgb, var(--border-muted), transparent 50%);
+}
+
+.zorg-drawer {
+  padding: 6px 4px;
+  font-size: 12px;
+}
+
+/* =============================================================================
+   Zorg Events Tab (Phase 7)
+   ============================================================================= */
+
+.zorg-event-table tr:hover {
+  background-color: color-mix(in srgb, var(--brand-primary), transparent 95%);
+}
+
+.zorg-event-level {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-inverse);
+  min-width: 36px;
+  text-align: center;
+}
+
+.zorg-event-level-debug {
+  background-color: color-mix(in srgb, var(--text-muted), transparent 35%);
+}
+
+.zorg-event-level-info {
+  background-color: var(--status-info);
+}
+
+.zorg-event-level-warn {
+  background-color: var(--status-warning);
+}
+
+.zorg-event-level-err {
+  background-color: var(--status-error);
+}
+
+.zorg-event-kind-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: monospace;
+  background-color: color-mix(in srgb, var(--brand-accent), transparent 80%);
+  color: var(--text-main);
+  border: 1px solid var(--border-muted);
+}
+
+.zorg-source-pill {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: monospace;
+  background-color: color-mix(in srgb, var(--brand-secondary), transparent 80%);
+  color: var(--text-main);
+}
+
+/* =============================================================================
+   Zorg Subscriptions (Phase 8)
+   ============================================================================= */
+
+.zorg-sub-block {
+  padding-left: 6px;
+  border-left: 2px solid color-mix(in srgb, var(--brand-secondary), transparent 70%);
+}
+
+.zorg-sub-table tr:hover {
+  background-color: color-mix(in srgb, var(--brand-primary), transparent 95%);
+}
+
+.zorg-sub-table td {
+  border-bottom: 1px solid color-mix(in srgb, var(--border-muted), transparent 60%);
+}
+
+.zorg-add-sub-form .input {
+  margin-top: 2px;
+}
+
+/* =============================================================================
+   Zorg Console Tab (Phase 9)
+   ============================================================================= */
+
+.zorg-templates {
+  font-size: 12px;
+}
+
+.zorg-template-row:hover {
+  background-color: color-mix(in srgb, var(--brand-primary), transparent 95%);
+}
+
+.zorg-template-vars {
+  font-size: 11px;
+}
+
+.zorg-history-table tr:hover {
+  background-color: color-mix(in srgb, var(--brand-primary), transparent 95%);
+}
+
+.zorg-history-table td {
+  border-bottom: 1px solid color-mix(in srgb, var(--border-muted), transparent 60%);
+  font-size: 11px;
+}
+
+/* =============================================================================
+   Zorg Topology + Health (Phase 10)
+   ============================================================================= */
+
+#zorg_topology_canvas svg line:hover {
+  stroke: var(--brand-accent) !important;
+  stroke-width: 2.5 !important;
+}
+
+#zorg_topology_canvas svg g:hover circle {
+  filter: brightness(1.2);
+}

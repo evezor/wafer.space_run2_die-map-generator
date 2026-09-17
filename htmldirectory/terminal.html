@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Evezor Terminal Docker</title>
+
+  <!-- Core stylesheets -->
+  
+<link rel="stylesheet" type="text/css" href="static/style.css" />
+<link rel="stylesheet" type="text/css" href="static/fancy_elements.css" />
+<link rel="icon" type="image/x-icon" href="static/favicon.ico" />
+
+
+  <!-- Syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark-reasonable.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/dracula.min.css">
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/python/python.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/yaml/yaml.min.js"></script>
+
+  <!-- IdeToast + DecorationRenderers are NOT loaded here. Each child template
+       mounts /static/ at a different prefix (IDE ../static/core/, docker &
+       cpython static/, esp32 root), so this file must not name a path. The
+       bundle terminals get both from core.bundle.js; the CSS rides along in
+       core/style.css via @import; pyscript (raw ES modules) loads them in its
+       own head_extra. -->
+
+  
+<!-- Markdown parser -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+
+  <!-- Shared terminal/UI styles -->
+  <style>
+    .terminal {
+      height: 150px;
+      padding: var(--space-sm) var(--space-md);
+      background-color: #0d0d0d;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #c5c5c5;
+      overflow: auto;
+      text-align: left;
+      border-radius: var(--radius-md);
+    }
+
+    .terminal-resize-handle {
+      height: 8px;
+      background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+      cursor: ns-resize;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom-left-radius: var(--radius-md);
+      border-bottom-right-radius: var(--radius-md);
+    }
+
+    .terminal-resize-handle::after {
+      content: '';
+      width: 50px;
+      height: 3px;
+      background-color: #444;
+      border-radius: 2px;
+    }
+
+    .terminal-resize-handle:hover::after {
+      background-color: #666;
+    }
+
+    .terminal-resize-handle:active::after {
+      background-color: #888;
+    }
+
+    .term_input {
+      border: 0px;
+      padding: var(--space-sm) var(--space-md);
+      outline: none;
+      border-top: 1px solid #333;
+      background-color: #151515;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      color: #e0e0e0;
+      overflow: auto;
+      text-align: left;
+    }
+
+    .term_input:focus {
+      background-color: #1a1a1a;
+    }
+
+    .terminal-hint {
+      padding: var(--space-xs) var(--space-sm);
+      font-size: var(--font-xs);
+      color: #5a5a5a;
+      background-color: #0d0d0d;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    }
+
+    .parameter {
+      padding: var(--space-sm);
+      margin: var(--space-xs);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+    }
+  </style>
+
+  
+
+  
+<script>
+  var websocket = null;
+</script>
+
+</head>
+
+<body>
+  <!-- Host configuration (hidden) -->
+  <div id="host_type" class="hidden">docker</div>
+  
+
+  <!-- Hidden form fields for canvas info -->
+  <form class="hidden">
+    <label>Network ID: <input type="text" class="input w-auto" id="nwk_id" autocomplete="off" value="nwk_123"/></label>
+    <label>Token: <input type="text" class="input w-auto" id="token" autocomplete="off" value="some-key-token"/></label>
+    <label>Canvas_id: <input type="text" class="input w-auto" id="canvas_id" autocomplete="off" value=""/></label>
+  </form>
+
+  
+<img src="static/logo.png" alt="Evezor Logo" height="100" style="float: right; vertical-align: top;" />
+
+
+  <!-- Tab buttons -->
+  
+<button id="main_button" class="btn btn--primary" onclick="toggle_tab('main')">Main</button>
+<button id="files_button" class="btn btn--ghost" onclick="toggle_tab('files')">Files</button>
+<button id="settings_button" class="btn btn--ghost" onclick="toggle_tab('settings')">Settings</button>
+<button id="connect_button" onclick="init(event)">Connect</button>
+<button id="sync_button" class="btn btn--ghost" onclick="syncFromIDE()">Sync from IDE</button>
+<button id="reset_button" class="btn btn--ghost" onclick="resetReload()">Reset</button>
+<span id="sync_status" style="font-size: 0.85em; margin-left: 0.5em;"></span>
+<h2 id="canvas_name">canvas: none</h2>
+
+
+  
+
+  <!-- Terminal section -->
+  
+  <div class="sticky-terminal-wrapper">
+    <div class="sticky-terminal-header" onclick="toggleStickyTerminal()">
+      <span class="terminal-toggle-icon" id="terminal-toggle-icon">▼</span>
+      <span>Terminal</span>
+      <span style="flex: 1;"></span>
+      <button onclick="event.stopPropagation(); toggle_all('collapse')" class="btn btn--sm btn--primary">collapse all</button>
+      <button onclick="event.stopPropagation(); toggle_all('expand')" class="btn btn--sm">expand all</button>
+    </div>
+    <div class="sticky-terminal-body" id="sticky-terminal-body">
+      <div id="chat" class="terminal"></div>
+      <div id="input-chat" class="term_input" contenteditable="true"></div>
+      <div class="terminal-hint">shift + enter for newline</div>
+      <div class="terminal-resize-handle" id="terminal-resize-handle"></div>
+    </div>
+  </div>
+  
+
+  <!-- Terminal resize script (not in overridable block) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const resizeHandle = document.getElementById('terminal-resize-handle');
+      const terminal = document.getElementById('chat');
+      const terminalBody = document.getElementById('sticky-terminal-body');
+
+      if (resizeHandle && terminal && terminalBody) {
+        let isResizing = false;
+        let hasDragged = false;
+        let startY = 0;
+        let startHeight = 0;
+        const DRAG_THRESHOLD = 5;
+
+        resizeHandle.addEventListener('mousedown', (e) => {
+          isResizing = true;
+          hasDragged = false;
+          startY = e.clientY;
+          startHeight = terminal.offsetHeight;
+          document.body.style.cursor = 'ns-resize';
+          document.body.setAttribute('data-resizing', 'true');
+          e.preventDefault();
+          e.stopPropagation();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+          if (!isResizing) return;
+          const deltaY = e.clientY - startY;
+          if (Math.abs(deltaY) > DRAG_THRESHOLD) hasDragged = true;
+          const newHeight = Math.max(50, startHeight + deltaY);
+          terminal.style.height = newHeight + 'px';
+          terminalBody.style.maxHeight = 'none';
+          e.preventDefault();
+        });
+
+        document.addEventListener('mouseup', () => {
+          if (isResizing) {
+            if (!hasDragged) toggleStickyTerminal();
+            isResizing = false;
+            hasDragged = false;
+            document.body.style.cursor = '';
+            document.body.removeAttribute('data-resizing');
+          }
+        });
+      }
+    });
+  </script>
+
+  <!-- Main tab content -->
+  <div id="main">
+    
+<div>
+  <button onclick="toggle_all('collapse')" class="btn btn--sm btn--primary">collapse all</button>
+  <button onclick="toggle_all('expand')" class="btn btn--sm">expand all</button>
+</div>
+<div id="parameters" class="flex flex-wrap gap-sm"></div>
+
+  </div>
+
+  <!-- Files tab content -->
+  <div id="files" class="hidden">
+    
+<button class="btn" onclick="hermes.send('listdir', 'none')">listdir</button>
+<div id="file_buttons"></div>
+<div id="explorer" class="bg-surface rounded-md p-sm" style="height: 300px; overflow: auto; border: 1px solid var(--border-muted);"></div>
+<div><input type="text" id="filecreator_new"><button class="btn" onclick="hermes.create_new_file()">Create New</button></div>
+<h3 id="file_editor_filename">filename</h3>
+<button class="btn" onclick="update_param()">update_param</button><br>
+<textarea class="input w-full" style="overflow:scroll; height:fit-content; max-height:90vh; width: 90%;" id="file_editor" contenteditable="true" spellcheck="false"></textarea>
+<br>
+<button class="btn btn--primary" onclick="hermes.save_file()">Save</button>
+<button class="btn" onclick="get_canvas_info('dependencies')">test</button>
+<button class="btn" onclick="update_canvas()">update_canvas</button>
+<button class="btn btn--sm" style="color: var(--status-error);" onclick="hermes.send('reset_device', '')">reset device</button>
+<div id="random_shit"></div>
+
+  </div>
+
+  <!-- Settings tab content -->
+  <div id="settings" class="hidden">
+    
+    <div class="settings-container">
+      <h1 class="settings-title">Settings</h1>
+
+      <!-- Theme section (populated in Phase 3) -->
+      <div id="theme-section" class="settings-section">
+        <h2>Appearance</h2>
+        <p class="settings-description">
+          Choose your preferred color scheme. Changes apply immediately.
+        </p>
+
+        <div class="theme-selector">
+          <label class="radio-option">
+            <input type="radio" name="theme" value="dark" id="theme-dark">
+            <span class="radio-label">
+              <span class="radio-title">Dark</span>
+              <span class="radio-description">Default dark theme</span>
+            </span>
+          </label>
+
+          <label class="radio-option">
+            <input type="radio" name="theme" value="light" id="theme-light">
+            <span class="radio-label">
+              <span class="radio-title">Light</span>
+              <span class="radio-description">Light theme for bright environments</span>
+            </span>
+          </label>
+
+          <label class="radio-option">
+            <input type="radio" name="theme" value="high-contrast" id="theme-high-contrast">
+            <span class="radio-label">
+              <span class="radio-title">High Contrast</span>
+              <span class="radio-description">Enhanced contrast for accessibility</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Debug flags section (populated in Phase 4) -->
+      <div id="debug-flags-section" class="settings-section">
+        <!-- Debug flags added in Phase 4 -->
+      </div>
+
+      <!-- Actions section -->
+      <div class="settings-section settings-actions">
+        <button id="reset-settings-btn" class="btn btn--secondary">
+          Reset to Defaults
+        </button>
+      </div>
+    </div>
+    
+  </div>
+
+  
+<hr>
+
+
+  <!-- Core scripts (ES6 modules) -->
+  
+<script type="text/javascript" src="static/core.bundle.js"></script>
+
+
+  
+
+{% for param in parameter_names %}
+<script src="parameters/get/{{ param }}.js"></script>
+{% endfor %}
+
+
+
+  <!-- Terminal initialization -->
+  
+<script>
+  window.addEventListener('load', () => {
+    if (typeof init === 'function') init();
+  });
+</script>
+
+
+  
+<script>
+  gid('filecreator_new').value = "";
+
+  function syncFromIDE() {
+    const btn = gid('sync_button');
+    const status = gid('sync_status');
+    btn.disabled = true;
+    status.textContent = 'syncing...';
+
+    fetch('/sync/pull', { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.errors && data.errors.length) {
+          status.textContent = `synced ${data.updated.length} files, ${data.errors.length} errors`;
+          status.style.color = 'var(--status-warning)';
+        } else {
+          status.textContent = `synced ${data.updated.length} files — reloading...`;
+          status.style.color = 'var(--status-success)';
+        }
+        btn.disabled = false;
+      })
+      .catch(err => {
+        status.textContent = 'sync failed: ' + err.message;
+        status.style.color = 'var(--status-error)';
+        btn.disabled = false;
+      });
+  }
+
+  function resetReload() {
+    const btn = gid('reset_button');
+    const status = gid('sync_status');
+    btn.disabled = true;
+    status.textContent = 'resetting...';
+    status.style.color = '';
+
+    fetch('/reset', { method: 'POST' })
+      .finally(() => {
+        status.textContent = 'reset triggered — server reloading...';
+        status.style.color = 'var(--status-success)';
+        btn.disabled = false;
+      });
+  }
+
+  function update_param() {
+    let filename = gid('file_editor_filename').innerText;
+    let url;
+
+    if (filename == 'config.py') {
+      let canvas_id = gid('canvas_id').value;
+      url = `../executable/${canvas_id}`;
+    } else {
+      url = `../parameters/get/${filename}`;
+    }
+
+    fetch(url).then(response => {
+      if (!response.ok) {
+        console.log('some problem in update_param');
+      }
+      return response.text();
+    }).then(resp => {
+      console.log(resp);
+      gid('file_editor').value = resp;
+    });
+  }
+
+  function get_canvas_info(keys) {
+    let canvas_id = gid('canvas_id').value;
+    let url = `../get/?canvas_id=${canvas_id}&keys=${keys}`;
+
+    fetch(url).then(response => {
+      if (!response.ok) {
+        console.log('some problem in get_canvas_info');
+      }
+      return response.json();
+    }).then(resp => {
+      let deps = JSON.parse(resp['dependencies']);
+      const buttons = gid('random_shit');
+      buttons.innerHTML = "";
+      for (let key of deps) {
+        const filename = key + '.py';
+        let div = document.createElement('div');
+        let button = document.createElement('button');
+        button.innerText = filename;
+        button.classList.add('btn', 'btn--sm');
+        div.appendChild(button);
+        let update_button = document.createElement('button');
+        update_button.innerText = 'update';
+        update_button.onclick = function () {
+          gid('file_editor_filename').innerText = filename;
+          gid('filecreator_new').value = filename;
+          update_param();
+        };
+        if (!hermes.files.includes(filename)) {
+          update_button.innerText = 'add';
+          update_button.classList.add('btn', 'btn--sm');
+          update_button.style.color = 'var(--status-error)';
+        }
+        div.appendChild(update_button);
+        buttons.appendChild(div);
+      }
+    });
+  }
+
+  function update_canvas() {
+    let canvas_id = gid('canvas_id').value;
+    let url = `../executable/${canvas_id}`;
+
+    fetch(url).then(response => {
+      if (!response.ok) {
+        console.log('some problem in update_canvas');
+      }
+      return response.text();
+    }).then(resp => {
+      console.log(resp);
+      gid('file_editor').value = resp;
+      gid('file_editor_filename').innerText = 'config.py';
+      const doit = confirm('Are you sure you want to update the canvas?');
+      doit ? hermes.save_file() : console.log('not updating');
+    });
+  }
+</script>
+<div style="height: 200px;"></div>
+
+  <div style="padding: var(--space-xs); font-size: var(--font-xs); color: var(--text-muted);">
+</body>
+</html>

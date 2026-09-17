@@ -1,0 +1,20 @@
+<div class="py-sm">
+  <h2 class="text-xl text-center">200mm Wafer Viewer</h2>
+  <div class="flex flex-col" style="height: 75%;">
+    <div>
+      <button class="btn btn--sm btn--primary" id="${param.pid}_button" onclick="hermes.p['${param.pid}'].plotWafer()">Plot Wafer</button>
+      <button class="btn btn--sm" id="${param.pid}_download" onclick="hermes.p['${param.pid}'].downloadSVG()" style="display:none;">Download SVG</button>
+    </div>
+    <div id="${param.pid}_die" class="p-sm" style="border: 1px solid var(--border-muted); width: auto;">
+    </div>
+  </div>
+  <div id="${param.pid}_heatmap" class="rounded-md" style="border: 1px solid var(--border-muted);"></div>
+  <h3 class="text-lg mt-md">Reticle Grid</h3>
+  <div id="${param.pid}_reticle_grid" style="display: inline-block; border: 1px solid var(--border-muted); padding: 4px;"></div>
+  <div class="flex items-center mt-sm" style="gap: 8px;">
+    <h4 class="text-sm">ignore_reticles (JSON):</h4>
+    <button class="btn btn--sm" id="${param.pid}_reticle_copy" onclick="hermes.p['${param.pid}'].copyIgnoreJSON()">Copy JSON</button>
+  </div>
+  <p class="text-xs" style="color: var(--text-muted);">Paste into the config Variable's <code>ignore_reticles</code> (or a dedicated ignore Variable).</p>
+  <textarea id="${param.pid}_reticle_output" readonly rows="3" style="width: 100%; font-family: monospace; font-size: 12px; background: var(--bg-muted); border: 1px solid var(--border-muted); padding: 4px;"></textarea>
+</div>

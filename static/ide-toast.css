@@ -1,0 +1,152 @@
+/**
+ * Toast notification styles
+ * Used by IdeToast module (ide-toast.js)
+ */
+
+/* Container — fixed bottom-right, stacks upward */
+#ide-toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10001;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  pointer-events: none;
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+/* Base toast */
+.ide-toast {
+  pointer-events: auto;
+  max-width: 400px;
+  min-width: 250px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  animation: ide-toast-slide-in 0.3s ease-out;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Type variants */
+.ide-toast--error {
+  background-color: #3a1518;
+  border-left: 4px solid #ff4444;
+  color: #f0f0f0;
+}
+
+.ide-toast--warning {
+  background-color: #2e2a10;
+  border-left: 4px solid #d8ff00;
+  color: #f0f0f0;
+}
+
+.ide-toast--success {
+  background-color: #0e2e27;
+  border-left: 4px solid #068770;
+  color: #f0f0f0;
+}
+
+.ide-toast--info {
+  background-color: #1a2a38;
+  border-left: 4px solid #7bf9e3;
+  color: #f0f0f0;
+}
+
+/* Leaving animation */
+.ide-toast--leaving {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+/* Slide-in keyframe */
+@keyframes ide-toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ===== Confirm dialog =====
+   Non-blocking replacement for window.confirm() (IdeToast.confirm()).
+   Overlay sits above the toast container (z-index 10001). */
+.ide-confirm-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  animation: ide-confirm-fade-in 0.15s ease-out;
+}
+
+.ide-confirm {
+  min-width: 280px;
+  max-width: 440px;
+  padding: 20px;
+  border-radius: 8px;
+  background: var(--bg-surface, #1e2228);
+  color: var(--text-main, #f0f0f0);
+  border: 1px solid var(--border-default, #3a3f47);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.ide-confirm__msg {
+  margin-bottom: 18px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.ide-confirm__btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ide-confirm__btn {
+  padding: 7px 16px;
+  border-radius: 5px;
+  border: 1px solid var(--border-default, #3a3f47);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.ide-confirm__btn--cancel {
+  background: transparent;
+  color: var(--text-main, #f0f0f0);
+}
+.ide-confirm__btn--cancel:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ide-confirm__btn--ok {
+  background: var(--brand-accent, #068770);
+  border-color: var(--brand-accent, #068770);
+  color: #fff;
+}
+.ide-confirm__btn--ok:hover {
+  filter: brightness(1.1);
+}
+
+@keyframes ide-confirm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
